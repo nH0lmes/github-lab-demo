@@ -1,0 +1,32 @@
+name: Automatic Conflict Bot
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+
+jobs:
+    conflict-bot:
+        if: contains(github.event.head_commit.message, 'create conflict')
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+            uses: actions/checkout@v4
+            with:
+                ref: main
+
+            - name: Configure Git
+            run:    |
+                git config user.name 'Conflict Bot'
+                git config user.email 'conflict-bot@users.noreply.github.com'
+            
+            - name: Create conflicting file
+            run:    |
+                FILENAME="conflict_$(date+%s).txt"
+                echo "This is a conflicting change made by the Conflict Bot at $(date)." > $FILENAME
+                git add $FILENAME
+                git commit -m "Conflict Bot: Created conflicting file"
+                git push origin main
